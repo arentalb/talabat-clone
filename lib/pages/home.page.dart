@@ -18,7 +18,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       body: StreamBuilder<List<Store>>(
         stream: _storeService.getStores(),
         builder: (context, snapshot) {
@@ -115,14 +114,14 @@ class _HomePageState extends State<HomePage> {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
           StoreDetailPage(storeId: storeId),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOut;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        return SlideTransition(position: animation.drive(tween), child: child);
-      },
+      // transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      //   const begin = Offset(1.0, 0.0);
+      //   const end = Offset.zero;
+      //   const curve = Curves.easeInOut;
+      //   var tween =
+      //       Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      //   return SlideTransition(position: animation.drive(tween), child: child);
+      // },
     );
   }
 }

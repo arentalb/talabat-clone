@@ -4,7 +4,7 @@ import 'package:talabat/models/food.model.dart';
 import 'package:talabat/models/option.model.dart';
 import 'package:talabat/models/cart_item.model.dart';
 import 'package:talabat/services/store.service.dart';
-import 'package:talabat/services/cart-order.service.dart';
+import 'package:talabat/services/user.service.dart';
 
 class FoodDetailPage extends StatefulWidget {
   final String foodId;
