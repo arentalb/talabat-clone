@@ -29,4 +29,29 @@ class StoreService {
         .collection('foods')
         .add(food.toMap());
   }
+
+  // bo searchaka
+  Future<List<Store>> fetchStoresOnce() async {
+    final snap = await _db.collection('stores').get();
+    return snap.docs.map((doc) => Store.fromMap(doc.data(), doc.id)).toList();
+  }
+
+  Future<List<FoodItem>> fetchAllFoodsAcrossStores() async {
+    final stores = await fetchStoresOnce();
+    final allFoods = <FoodItem>[];
+
+    for (final store in stores) {
+      final foodSnap = await _db
+          .collection('stores')
+          .doc(store.id)
+          .collection('foods')
+          .get();
+      final foods = foodSnap.docs
+          .map((doc) => FoodItem.fromMap(doc.data(), doc.id))
+          .toList();
+      allFoods.addAll(foods);
+    }
+
+    return allFoods;
+  }
 }

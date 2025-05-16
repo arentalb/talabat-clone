@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:talabat/sliders/foodDetail.slider.dart';
 import 'package:talabat/sliders/storeDetail.slider.dart';
-import 'package:talabat/utils/data/stores.data.dart';
-import 'package:talabat/utils/models/food_item.model.dart';
-import 'package:talabat/utils/models/store.model.dart';
+import 'package:talabat/models/store.model.dart';
+import 'package:talabat/models/food.model.dart';
+import 'package:talabat/services/store.service.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -13,8 +13,12 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final StoreService _storeService = StoreService();
+
   String _searchQuery = "";
   String _searchMode = "Store Name";
+  List<Store> _allStores = [];
+  List<FoodItem> _allFoods = [];
   List<dynamic> _searchResults = [];
 
   final List<String> _searchModes = ["Store Name", "Food Name"];
@@ -22,7 +26,18 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    _searchResults = storesData;
+    _loadStoresAndFoods();
+  }
+
+  Future<void> _loadStoresAndFoods() async {
+    final stores = await _storeService.fetchStoresOnce();
+    final allFoods = await _storeService.fetchAllFoodsAcrossStores();
+
+    setState(() {
+      _allStores = stores;
+      _allFoods = allFoods;
+      _searchResults = stores;
+    });
   }
 
   void _onSearchChanged(String query) {
@@ -30,16 +45,14 @@ class _SearchPageState extends State<SearchPage> {
       _searchQuery = query.toLowerCase();
 
       if (_searchMode == "Store Name") {
-        _searchResults = storesData.where((store) {
+        _searchResults = _allStores.where((store) {
           return store.storeName.toLowerCase().contains(_searchQuery);
         }).toList();
-      } else if (_searchMode == "Food Name") {
-        _searchResults = storesData
-            .expand((store) => store.foods)
-            .where((food) =>
-                food.name.toLowerCase().contains(_searchQuery) ||
-                food.category.toLowerCase().contains(_searchQuery))
-            .toList();
+      } else {
+        _searchResults = _allFoods.where((food) {
+          return food.name.toLowerCase().contains(_searchQuery) ||
+              food.category.toLowerCase().contains(_searchQuery);
+        }).toList();
       }
     });
   }
@@ -63,11 +76,8 @@ class _SearchPageState extends State<SearchPage> {
                     if (value != null) {
                       setState(() {
                         _searchMode = value;
-                        _searchResults = _searchMode == "Store Name"
-                            ? storesData
-                            : storesData
-                                .expand((store) => store.foods)
-                                .toList();
+                        _searchResults =
+                            value == "Store Name" ? _allStores : _allFoods;
                         _searchQuery = "";
                       });
                     }
@@ -106,47 +116,50 @@ class _SearchPageState extends State<SearchPage> {
                       if (_searchMode == "Store Name") {
                         final store = _searchResults[index] as Store;
                         return ListTile(
-                          leading: Image.asset(
+                          leading: Image.network(
                             store.storeImageUrl,
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image),
                           ),
                           title: Text(store.storeName),
                           subtitle: Text(
                               "Categories: ${store.categories.join(', ')}"),
                           onTap: () {
                             Navigator.of(context)
-                                .push(_navigateToStore(store.storeId));
+                                .push(_navigateToStore(store.id));
                           },
                         );
-                      } else if (_searchMode == "Food Name") {
+                      } else {
                         final food = _searchResults[index] as FoodItem;
+                        final store = _allStores.firstWhere(
+                          (store) => store.id == food.id.split("_").first,
+                          orElse: () => Store(
+                            id: '',
+                            storeName: 'Unknown',
+                            storeImageUrl: '',
+                            categories: [],
+                            isTrend: false,
+                          ),
+                        );
                         return ListTile(
-                          leading: Image.asset(
+                          leading: Image.network(
                             food.imageUrl,
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image),
                           ),
                           title: Text(food.name),
                           subtitle: Text("Category: ${food.category}"),
                           onTap: () {
-                            final store = storesData.firstWhere(
-                              (store) => store.foods
-                                  .any((f) => f.foodId == food.foodId),
-                              orElse: () => Store.empty(),
-                            );
-
-                            _showCustomBottomSlider(
-                              context,
-                              food.foodId,
-                              store.storeId,
-                            );
+                            _showCustomBottomSlider(context, food.id, store.id);
                           },
                         );
                       }
-                      return const SizedBox.shrink();
                     },
                   ),
           ),
@@ -154,46 +167,45 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
   }
-}
 
-Route _navigateToStore(int storeId) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        StoreDetailSlider(storeId: storeId.toString()),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(1.0, 0.0);
-      const end = Offset.zero;
-      const curve = Curves.easeInOut;
+  Route _navigateToStore(String storeId) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          StoreDetailSlider(storeId: storeId),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
 
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-      var offsetAnimation = animation.drive(tween);
+        final tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final offsetAnimation = animation.drive(tween);
 
-      return SlideTransition(
-        position: offsetAnimation,
-        child: child,
-      );
-    },
-  );
-}
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+    );
+  }
 
-void _showCustomBottomSlider(BuildContext context, int foodId, int storeId) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return DraggableScrollableSheet(
-        initialChildSize: 0.8,
-        minChildSize: 0.3,
-        maxChildSize: 1.0,
-        builder: (context, scrollController) {
-          return FoodDetailSlider(
-            foodId: foodId.toString(),
-            storeId: storeId.toString(),
-            scrollController: scrollController,
-          );
-        },
-      );
-    },
-  );
+  void _showCustomBottomSlider(
+      BuildContext context, String foodId, String storeId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.3,
+          maxChildSize: 1.0,
+          builder: (context, scrollController) {
+            return FoodDetailSlider(
+              foodId: foodId,
+              storeId: storeId,
+              scrollController: scrollController,
+            );
+          },
+        );
+      },
+    );
+  }
 }
