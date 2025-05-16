@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talabat/pages/admin_store.page.dart';
 import 'package:talabat/pages/cart.page.dart';
 import 'package:talabat/pages/home.page.dart';
 import 'package:talabat/pages/orders.page.dart';
@@ -19,7 +20,8 @@ class _AppNavigatorState extends State<AppNavigator> {
     const SearchPage(),
     const CartPage(),
     const OrdersPage(),
-    const ProfilePage()
+    const ProfilePage(),
+    const AdminStorePage()
   ];
 
   void _onItemTapped(int index) {
@@ -66,6 +68,10 @@ class _AppNavigatorState extends State<AppNavigator> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.security),
+            label: 'Admin',
           ),
         ],
       ),

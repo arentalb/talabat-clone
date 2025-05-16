@@ -16,4 +16,17 @@ class StoreService {
         .map((doc) => FoodItem.fromMap(doc.data(), doc.id))
         .toList();
   }
+
+// bo admin
+  Future<void> createStore(Store store) async {
+    await _db.collection('stores').add(store.toMap());
+  }
+
+  Future<void> addFood(String storeId, FoodItem food) async {
+    await _db
+        .collection('stores')
+        .doc(storeId)
+        .collection('foods')
+        .add(food.toMap());
+  }
 }
