@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talabat/models/order.model.dart';
-import 'package:talabat/models/cart_item.model.dart';
 import 'package:talabat/models/food.model.dart';
 import 'package:talabat/models/option.model.dart';
 import 'package:talabat/services/user.service.dart';
