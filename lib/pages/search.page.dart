@@ -44,57 +44,78 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-      padding: const EdgeInsetsDirectional.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Search for anything ",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: const InputDecoration(
-                hintText: "Search by store name...",
-                border: InputBorder.none,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 40, 16, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Search for anything",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
               ),
-              onChanged: _onSearchChanged,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: TextField(
+                onChanged: _onSearchChanged,
+                decoration: const InputDecoration(
+                  hintText: "Search by store name...",
+                  border: InputBorder.none,
+                  icon: Icon(Icons.search),
+                ),
+              ),
             ),
-          ),
-          Expanded(
-            child: _filteredStores.isEmpty
-                ? const Center(
-                    child: Text("No results found",
-                        style: TextStyle(fontSize: 16)))
-                : ListView.builder(
-                    itemCount: _filteredStores.length,
-                    itemBuilder: (context, index) {
-                      final store = _filteredStores[index];
-                      return ListTile(
-                        leading: Image.network(
-                          store.storeImageUrl,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.broken_image),
-                        ),
-                        title: Text(store.storeName),
-                        subtitle:
-                            Text("Categories: ${store.categories.join(', ')}"),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    StoreDetailPage(storeId: store.id)),
-                          );
-                        },
-                      );
-                    },
-                  ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Expanded(
+              child: _filteredStores.isEmpty
+                  ? const Center(
+                      child: Text("No results found",
+                          style: TextStyle(fontSize: 16)))
+                  : ListView.builder(
+                      itemCount: _filteredStores.length,
+                      itemBuilder: (context, index) {
+                        final store = _filteredStores[index];
+                        return Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 4),
+                          child: ListTile(
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                store.storeImageUrl,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const Icon(Icons.broken_image),
+                              ),
+                            ),
+                            title: Text(store.storeName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text(
+                                "Categories: ${store.categories.join(', ')}"),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        StoreDetailPage(storeId: store.id)),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
