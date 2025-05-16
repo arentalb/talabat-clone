@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:talabat/pages/cart.page.dart';
 import 'package:talabat/pages/home.page.dart';
 import 'package:talabat/pages/orders.page.dart';
+import 'package:talabat/pages/profile.page.dart';
 import 'package:talabat/pages/search.page.dart';
 
 class AppNavigator extends StatefulWidget {
@@ -18,6 +19,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     const SearchPage(),
     const CartPage(),
     const OrdersPage(),
+    const ProfilePage()
   ];
 
   void _onItemTapped(int index) {
@@ -61,12 +63,12 @@ class _AppNavigatorState extends State<AppNavigator> {
             icon: Icon(Icons.shopping_cart),
             label: 'Orders',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );
   }
 }
-//  BottomNavigationBarItem(
-          //   icon: Icon(Icons.person),
-          //   label: 'Account',
-          // ),
