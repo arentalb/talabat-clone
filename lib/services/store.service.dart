@@ -35,4 +35,13 @@ class StoreService {
     final snap = await _db.collection('stores').get();
     return snap.docs.map((doc) => Store.fromMap(doc.data(), doc.id)).toList();
   }
+
+// bo ordersakan
+  Future<Store?> getStoreById(String storeId) async {
+    final doc = await _db.collection('stores').doc(storeId).get();
+    if (doc.exists) {
+      return Store.fromMap(doc.data()!, doc.id);
+    }
+    return null;
+  }
 }

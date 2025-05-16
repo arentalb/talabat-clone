@@ -20,23 +20,58 @@ class ProfilePage extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.account_circle, size: 100, color: Colors.grey),
-            const SizedBox(height: 20),
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.grey,
+              child: Icon(Icons.person, size: 60, color: Colors.white),
+            ),
+            const SizedBox(height: 16),
             Text(
               user?.email ?? 'No email found',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 4),
+            Text(
+              'UID: ${user?.uid ?? 'Unavailable'}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const Divider(height: 40),
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text("Change Password"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                // Add navigation or action
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.email_outlined),
+              title: const Text("Update Email"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                // Add navigation or action
+              },
+            ),
+            const Spacer(),
             ElevatedButton.icon(
               onPressed: () => _logout(context),
-              icon: const Icon(Icons.logout),
-              label: const Text('Logout'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            ),
+              icon: const Icon(
+                Icons.logout,
+                color: Colors.white,
+              ),
+              label: const Text(
+                "Logout",
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 226, 90, 81),
+                minimumSize: const Size.fromHeight(50),
+              ),
+            )
           ],
         ),
       ),

@@ -30,7 +30,6 @@ class _CartPagePageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  
       body: StreamBuilder<List<CartItem>>(
         stream: _userService.getCart(),
         builder: (context, snapshot) {

@@ -44,9 +44,13 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
-      body: Column(
+        body: Padding(
+      padding: const EdgeInsetsDirectional.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text("Search for anything ",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -91,6 +95,6 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
-    );
+    ));
   }
 }

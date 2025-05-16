@@ -14,40 +14,86 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   String? error;
+  bool _isLoading = false;
 
   Future<void> _login() async {
+    setState(() {
+      error = null;
+      _isLoading = true;
+    });
+
     try {
-      await AuthService()
-          .signIn(_emailController.text, _passwordController.text);
+      await AuthService().signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (!mounted) return;
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const AppNavigator()));
+        context,
+        MaterialPageRoute(builder: (_) => const AppNavigator()),
+      );
     } catch (e) {
       setState(() => error = e.toString());
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(
+        title: const Text('Login'),
+        backgroundColor: const Color.fromARGB(255, 249, 109, 33),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (error != null)
-              Text(error!, style: const TextStyle(color: Colors.red)),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(error!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14)),
+              ),
             TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email')),
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
             TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: _login, child: const Text('Login')),
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: _isLoading ? null : _login,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Login',
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+            ),
             TextButton(
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const SignupPage())),
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => const SignupPage()));
+              },
               child: const Text('Don’t have an account? Sign up'),
             ),
           ],
