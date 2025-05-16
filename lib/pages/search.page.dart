@@ -159,7 +159,7 @@ class _SearchPageState extends State<SearchPage> {
 Route _navigateToStore(int storeId) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) =>
-        StoreDetailSlider(storeId: storeId),
+        StoreDetailSlider(storeId: storeId.toString()),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(1.0, 0.0);
       const end = Offset.zero;
@@ -188,8 +188,8 @@ void _showCustomBottomSlider(BuildContext context, int foodId, int storeId) {
         maxChildSize: 1.0,
         builder: (context, scrollController) {
           return FoodDetailSlider(
-            foodId: foodId,
-            storeId: storeId,
+            foodId: foodId.toString(),
+            storeId: storeId.toString(),
             scrollController: scrollController,
           );
         },

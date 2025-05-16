@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:talabat/utils/data/cart.data.dart';
-import 'package:talabat/utils/helpers/cart.helper.dart';
-import 'package:talabat/utils/models/cart.model.dart';
-import 'package:talabat/utils/models/food_item.model.dart';
-import 'package:talabat/utils/models/store.model.dart';
-import 'package:talabat/utils/data/stores.data.dart';
+import 'package:talabat/models/food.model.dart';
+import 'package:talabat/models/option.model.dart';
+import 'package:talabat/services/store.service.dart';
+import 'package:talabat/services/user.service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:talabat/models/cart_item.model.dart';
 
 class FoodDetailSlider extends StatefulWidget {
-  final int storeId;
-  final int foodId;
+  final String foodId;
+  final String storeId;
   final ScrollController scrollController;
 
   const FoodDetailSlider({
@@ -19,112 +19,100 @@ class FoodDetailSlider extends StatefulWidget {
   });
 
   @override
-  State<FoodDetailSlider> createState() => _FoodDetailPageState();
+  State<FoodDetailSlider> createState() => _FoodDetailSliderState();
 }
 
-class _FoodDetailPageState extends State<FoodDetailSlider> {
-  Store? store;
+class _FoodDetailSliderState extends State<FoodDetailSlider> {
+  final StoreService _storeService = StoreService();
+  late final UserService _userService;
+
   FoodItem? food;
-  Cart cart = cartData;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
-    fetchStoreData();
+    if (user != null) _userService = UserService(user!.uid);
+    _loadFoodData();
   }
 
-  void fetchStoreData() {
-    store = storesData.firstWhere(
-      (store) => store.storeId == widget.storeId,
-      orElse: () => Store.empty(),
+  Future<void> _loadFoodData() async {
+    final foods = await _storeService.getFoods(widget.storeId);
+    for (var f in foods) {
+      debugPrint('Food: id=${f.id}, name=${f.name}, imageUrl=${f.imageUrl}');
+      for (var o in f.options) {
+        debugPrint('Option: ${o.id}, name=${o.name}, price=${o.price}');
+      }
+    }
+
+    final match = foods.firstWhere(
+      (f) => f.id == widget.foodId,
+      orElse: () =>
+          FoodItem(id: '', name: '', category: '', imageUrl: '', options: []),
     );
 
-    if (store != null) {
-      food = store!.foods.firstWhere(
-        (food) => food.foodId == widget.foodId,
-        orElse: () => FoodItem.empty(),
-      );
+    setState(() => food = match);
+  }
+
+  Widget buildImage(String url) {
+    if (url.isEmpty) {
+      return const Icon(Icons.image_not_supported, size: 80);
     }
+
+    return Image.network(
+      url,
+      width: 80,
+      height: 80,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) =>
+          const Icon(Icons.broken_image),
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return const SizedBox(
+          width: 80,
+          height: 80,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (store == null) {
-      return const Scaffold(
-        body: Center(
-          child: Text(
-            "Store not founded ",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-      );
+    if (food == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       body: Column(
         children: [
-          Image.asset(
-            food!.imageUrl,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-          ),
+          buildImage(food!.imageUrl),
           Expanded(
             child: Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
+              color: Colors.white,
               child: SingleChildScrollView(
                 controller: widget.scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        food!.name,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(food!.name,
                         style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Options:',
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black)),
+                    const SizedBox(height: 20),
+                    const Text('Options:',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ...food!.options.map<Widget>((option) {
-                        return Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${option.id}: ${option.name} - ${option.price} IQD',
-                                  style: const TextStyle(
-                                      color: Colors.black, fontSize: 16),
-                                ),
-                                _optionBtn(
-                                  storeId: widget.storeId,
-                                  foodId: widget.foodId,
-                                  optionId: option.id,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        );
-                      })
-                    ],
-                  ),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black)),
+                    const SizedBox(height: 10),
+                    ...food!.options
+                        .map((option) => _optionRow(option))
+                        .toList(),
+                  ],
                 ),
               ),
             ),
@@ -134,64 +122,84 @@ class _FoodDetailPageState extends State<FoodDetailSlider> {
     );
   }
 
-  Widget _optionBtn({
-    required int storeId,
-    required int foodId,
-    required int optionId,
-  }) {
-    return StatefulBuilder(builder: (context, setState) {
-      final quantity = cart.items.indexWhere((item) =>
-                  item.foodId == foodId && item.optionId == optionId) !=
-              -1
-          ? cart.items
-              .firstWhere(
-                  (item) => item.foodId == foodId && item.optionId == optionId)
-              .quantity
-          : 0;
+  Widget _optionRow(Option option) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('${option.name} - ${option.price} IQD',
+              style: const TextStyle(fontSize: 16)),
+          _optionBtn(foodId: food!.id, optionId: option.id),
+        ],
+      ),
+    );
+  }
 
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-        decoration: BoxDecoration(
-          color: Colors.orange,
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () {
-                addItemToCart(storeId, foodId, optionId);
-                setState(() {});
-              },
-              child: const Text(
-                "+",
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
+  Widget _optionBtn({required String foodId, required int optionId}) {
+    return StatefulBuilder(builder: (context, setState) {
+      int quantity = 0;
+
+      return StreamBuilder<List<CartItem>>(
+        stream: _userService.getCart(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final match = snapshot.data!.firstWhere(
+              (item) => item.foodId == foodId && item.optionId == optionId,
+              orElse: () =>
+                  CartItem(foodId: '', optionId: 0, quantity: 0, storeId: ''),
+            );
+            quantity = match.quantity;
+          }
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.circular(8),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                '$quantity',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    await _userService.addToCart(CartItem(
+                      foodId: foodId,
+                      optionId: optionId,
+                      quantity: quantity + 1,
+                      storeId: widget.storeId,
+                    ));
+                  },
+                  child: const Text("+", style: TextStyle(color: Colors.white)),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    '$quantity',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (quantity > 0) {
+                      await _userService.addToCart(CartItem(
+                        foodId: foodId,
+                        optionId: optionId,
+                        quantity: quantity - 1,
+                        storeId: widget.storeId,
+                      ));
+                    }
+                  },
+                  child: const Text("-", style: TextStyle(color: Colors.white)),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                removeItemFromCart(foodId, optionId);
-                setState(() {});
-              },
-              child: const Text(
-                "-",
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       );
     });
   }

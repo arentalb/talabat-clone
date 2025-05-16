@@ -31,12 +31,8 @@ class StoreDetailCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: Image.asset(
-                imagePath,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
+              child: Image.network(imagePath,
+                  width: 80, height: 80, fit: BoxFit.cover),
             ),
             const SizedBox(
               width: 20,

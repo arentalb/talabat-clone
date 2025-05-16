@@ -34,14 +34,9 @@ class BigCard extends StatelessWidget {
                 ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.asset(
-                  imagePath,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
-              ),
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(imagePath,
+                      width: 80, height: 80, fit: BoxFit.cover)),
             ),
             const SizedBox(height: 4),
             Flexible(
