@@ -17,13 +17,24 @@ class UserService {
           snap.docs.map((doc) => CartItem.fromMap(doc.data())).toList());
 
   Future<void> addToCart(CartItem item) async {
+    final cartRef = _db.collection('users').doc(uid).collection('cart');
+
+    final currentItems = await cartRef.get();
+    final hasDifferentStore = currentItems.docs.any((doc) {
+      final data = doc.data();
+      return data['storeId'] != item.storeId;
+    });
+
+    if (hasDifferentStore) {
+      final batch = _db.batch();
+      for (final doc in currentItems.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+    }
+
     final docId = "${item.foodId}_${item.optionId}";
-    await _db
-        .collection('users')
-        .doc(uid)
-        .collection('cart')
-        .doc(docId)
-        .set(item.toMap());
+    await cartRef.doc(docId).set(item.toMap());
   }
 
   Future<void> removeFromCart(String foodId, int optionId) async {

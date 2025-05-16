@@ -5,7 +5,7 @@ import 'package:talabat/models/food.model.dart';
 import 'package:talabat/models/option.model.dart';
 import 'package:talabat/models/order.model.dart';
 import 'package:talabat/services/store.service.dart';
-import 'package:talabat/services/user.service.dart';
+import 'package:talabat/services/cart-order.service.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
