@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:talabat/models/food.model.dart';
 import 'package:talabat/models/store.model.dart';
+import 'package:talabat/pages/food_detail.page.dart';
 import 'package:talabat/services/store.service.dart';
-import 'package:talabat/sliders/foodDetail.slider.dart';
 import 'package:talabat/widgets/storedetail.card.dart';
 
-class StoreDetailSlider extends StatefulWidget {
+class StoreDetailPage extends StatefulWidget {
   final String storeId;
 
-  const StoreDetailSlider({super.key, required this.storeId});
+  const StoreDetailPage({super.key, required this.storeId});
 
   @override
-  State<StoreDetailSlider> createState() => _StoreDetailPageState();
+  State<StoreDetailPage> createState() => _StoreDetailPageState();
 }
 
-class _StoreDetailPageState extends State<StoreDetailSlider> {
+class _StoreDetailPageState extends State<StoreDetailPage> {
   final StoreService _storeService = StoreService();
   Store? store;
   List<FoodItem> foods = [];
@@ -158,7 +158,7 @@ class _StoreDetailPageState extends State<StoreDetailSlider> {
           minChildSize: 0.3,
           maxChildSize: 1.0,
           builder: (context, scrollController) {
-            return FoodDetailSlider(
+            return FoodDetailPage(
               foodId: foodId, // Adjust this if `foodId` is string type
               storeId: storeId,
               scrollController: scrollController,

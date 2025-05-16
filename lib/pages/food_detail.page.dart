@@ -6,12 +6,12 @@ import 'package:talabat/services/user.service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talabat/models/cart_item.model.dart';
 
-class FoodDetailSlider extends StatefulWidget {
+class FoodDetailPage extends StatefulWidget {
   final String foodId;
   final String storeId;
   final ScrollController scrollController;
 
-  const FoodDetailSlider({
+  const FoodDetailPage({
     super.key,
     required this.storeId,
     required this.foodId,
@@ -19,10 +19,10 @@ class FoodDetailSlider extends StatefulWidget {
   });
 
   @override
-  State<FoodDetailSlider> createState() => _FoodDetailSliderState();
+  State<FoodDetailPage> createState() => _FoodDetailSliderState();
 }
 
-class _FoodDetailSliderState extends State<FoodDetailSlider> {
+class _FoodDetailSliderState extends State<FoodDetailPage> {
   final StoreService _storeService = StoreService();
   late final UserService _userService;
 

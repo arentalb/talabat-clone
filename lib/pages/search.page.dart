@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:talabat/sliders/foodDetail.slider.dart';
-import 'package:talabat/sliders/storeDetail.slider.dart';
+import 'package:talabat/pages/food_detail.page.dart';
+import 'package:talabat/pages/store_detail.page.dart';
 import 'package:talabat/models/store.model.dart';
 import 'package:talabat/models/food.model.dart';
 import 'package:talabat/services/store.service.dart';
@@ -171,7 +171,7 @@ class _SearchPageState extends State<SearchPage> {
   Route _navigateToStore(String storeId) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
-          StoreDetailSlider(storeId: storeId),
+          StoreDetailPage(storeId: storeId),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
@@ -198,7 +198,7 @@ class _SearchPageState extends State<SearchPage> {
           minChildSize: 0.3,
           maxChildSize: 1.0,
           builder: (context, scrollController) {
-            return FoodDetailSlider(
+            return FoodDetailPage(
               foodId: foodId,
               storeId: storeId,
               scrollController: scrollController,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:talabat/models/store.model.dart';
+import 'package:talabat/pages/store_detail.page.dart';
 import 'package:talabat/services/store.service.dart';
-import 'package:talabat/sliders/image.slider.dart';
-import 'package:talabat/sliders/storeDetail.slider.dart';
+import 'package:talabat/widgets/image.slider.dart';
 import 'package:talabat/widgets/big.card.dart';
 
 class HomePage extends StatefulWidget {
@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
   Route _navigateToStore(String storeId) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
-          StoreDetailSlider(storeId: storeId),
+          StoreDetailPage(storeId: storeId),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
