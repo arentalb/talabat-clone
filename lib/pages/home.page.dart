@@ -18,13 +18,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "TALABAT",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color.fromARGB(255, 249, 109, 33),
-      ),
+     
       body: StreamBuilder<List<Store>>(
         stream: _storeService.getStores(),
         builder: (context, snapshot) {

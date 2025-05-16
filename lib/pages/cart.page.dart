@@ -30,10 +30,7 @@ class _CartPagePageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Cart", style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 249, 109, 33),
-      ),
+  
       body: StreamBuilder<List<CartItem>>(
         stream: _userService.getCart(),
         builder: (context, snapshot) {

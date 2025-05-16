@@ -67,7 +67,6 @@ class _AdminStorePageState extends State<AdminStorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin - Manage Stores')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

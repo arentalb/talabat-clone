@@ -27,10 +27,7 @@ class _OrdersPageState extends State<OrdersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Orders", style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 249, 109, 33),
-      ),
+   
       body: user == null
           ? const Center(child: Text("Not logged in"))
           : StreamBuilder<List<Order>>(
